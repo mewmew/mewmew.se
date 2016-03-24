@@ -13,6 +13,7 @@ import (
 
 	"github.com/mewkiz/pkg/errutil"
 	"github.com/mewkiz/pkg/imgutil"
+	"github.com/mewkiz/pkg/pathutil"
 	"github.com/nfnt/resize"
 )
 
@@ -196,9 +197,13 @@ func NewPage(title string, paths []string) *Page {
 		Title: title,
 	}
 	for _, path := range paths {
-		desc := title
+		name := pathutil.FileName(path)
+		desc := getDesc(name)
+		if len(desc) == 0 {
+			desc = title
+		}
 		if tags := getTags(path); len(tags) > 0 {
-			desc = title + " " + tags
+			desc = desc + " " + tags
 		}
 		photo := &Photo{
 			Path: path,
@@ -207,6 +212,43 @@ func NewPage(title string, paths []string) *Page {
 		page.Photos = append(page.Photos, photo)
 	}
 	return page
+}
+
+// getDesc returns the description contained within a given file name. E.g.
+//
+//    Input:  "2013-01-07 - Guangzhou, Yuexiu Park.jpg"
+//    Output: "Guangzhou, Yuexiu Park"
+//
+//    Input:  "2013-03-12 - Nepal, Annapurna - 0002.jpg"
+//    Output: "Nepal, Annapurna"
+//
+//    Input:  "2013-03-26 - 0001, Nepal, Holi [Danne] [Lital] [Robin]"
+//    Output: "Nepal, Holi"
+func getDesc(name string) string {
+	// Skip tags.
+	if tagStart := strings.IndexByte(name, '['); tagStart != -1 {
+		name = name[:tagStart]
+	}
+
+	// Locate description.
+	const (
+		lower = "abcdefghijklmnopqrstuvwxyz"
+		upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		alpha = lower + upper
+	)
+	f := func(r rune) bool {
+		return strings.ContainsRune(alpha, r)
+	}
+	descStart := strings.IndexFunc(name, f)
+	if descStart == -1 {
+		return ""
+	}
+
+	descEnd := strings.LastIndexFunc(name, f)
+	if descEnd == -1 {
+		return ""
+	}
+	return name[descStart : descEnd+1]
 }
 
 // getTags returns the tags within a given file name. E.g.
