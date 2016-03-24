@@ -222,7 +222,7 @@ func NewPage(title string, paths []string) *Page {
 //    Input:  "2013-03-12 - Nepal, Annapurna - 0002.jpg"
 //    Output: "Nepal, Annapurna"
 //
-//    Input:  "2013-03-26 - 0001, Nepal, Holi [Danne] [Lital] [Robin]"
+//    Input:  "2013-03-26 - 0001, Nepal, Holi [Danne] [Littal] [Robin]"
 //    Output: "Nepal, Holi"
 func getDesc(name string) string {
 	// Skip tags.
