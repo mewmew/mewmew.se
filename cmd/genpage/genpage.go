@@ -53,9 +53,9 @@ func main() {
 //    output/thumbs/foo.jpg
 //    output/thumbs/bar.jpg
 func dumpPage(outputDir string, page *Page, max uint) error {
+	// Create directory structure.
 	imgDir := filepath.Join(outputDir, "img")
 	thumbsDir := filepath.Join(outputDir, "thumbs")
-	// Create directory structure.
 	if verbose {
 		log.Printf("Creating directory %q", imgDir)
 	}
@@ -66,6 +66,15 @@ func dumpPage(outputDir string, page *Page, max uint) error {
 		log.Printf("Creating directory %q", thumbsDir)
 	}
 	if err := os.MkdirAll(thumbsDir, 0755); err != nil {
+		return errutil.Err(err)
+	}
+
+	// Create index.html.
+	indexPath := filepath.Join(outputDir, "index.html")
+	if verbose {
+		log.Printf("Creating %q", indexPath)
+	}
+	if err := dumpIndex(indexPath, page); err != nil {
 		return errutil.Err(err)
 	}
 
@@ -95,14 +104,6 @@ func dumpPage(outputDir string, page *Page, max uint) error {
 		}
 	}
 
-	// Create index.html.
-	indexPath := filepath.Join(outputDir, "index.html")
-	if verbose {
-		log.Printf("Creating %q", indexPath)
-	}
-	if err := dumpIndex(indexPath, page); err != nil {
-		return errutil.Err(err)
-	}
 	return nil
 }
 
@@ -151,9 +152,9 @@ func dumpIndex(indexPath string, page *Page) error {
 	<body>
 		<div id='m'>
 			<h1>{{.Title}}</h1>
-{{range .Photos -}}
+{{- range .Photos}}
 			<a href='img/{{base .Path}}' title='{{.Desc}}'><img src='thumbs/{{base .Path}}' alt='{{.Desc}}'></a>
-{{end}}
+{{- end -}}
 		</div>
 	</body>
 </html>
