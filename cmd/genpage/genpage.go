@@ -116,7 +116,7 @@ func createThumbnail(dstPath, srcPath string, max uint) error {
 		return errutil.Err(err)
 	}
 	thumb := resize.Thumbnail(max, max, src, resize.Bicubic)
-	if err := imgutil.WriteFile(dstPath, thumb); err != nil {
+	if err := imgutil.WriteJPEG(dstPath, thumb, 100); err != nil {
 		return errutil.Err(err)
 	}
 	return nil
